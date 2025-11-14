@@ -17,16 +17,34 @@ CACHE_FILE = "/app/cache/processed.json"
 # =========================
 
 def build_feishu_message(title, link, published):
-    """构建飞书消息"""
-    text = f"🚨 **Linode Status 告警**\n" \
-           f"📌 **标题**: {title}\n" \
-           f"🔗 **链接**: {link}\n" \
-           f"⏰ **发布时间**: {published}"
+    """构建飞书消息（支持@所有人）"""
+    # 使用 post 类型消息，支持@所有人
+    content_text = f"🚨 **Linode Status 告警** \n" \
+                   f"📌 **标题**: {title}\n" \
+                   f"🔗 **链接**: {link}\n" \
+                   f"⏰ **发布时间**: {published}"
     
     return {
-        "msg_type": "text",
+        "msg_type": "post",
         "content": {
-            "text": text
+            "post": {
+                "zh_cn": {
+                    "title": "⚠️ Linode Status 告警",
+                    "content": [
+                        [
+                            {
+                                "tag": "text",
+                                "text": content_text + "\n\n"
+                            },
+                            {
+                                "tag": "at",
+                                "user_id": "all",
+                                "user_name": "所有人"
+                            }
+                        ]
+                    ]
+                }
+            }
         }
     }
 
