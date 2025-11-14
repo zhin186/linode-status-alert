@@ -123,6 +123,7 @@ def main():
     processed = load_processed()
     new_items = []
     
+    # 收集所有未处理的新条目（不管时间顺序）
     for entry in feed.entries:
         item_id = entry.get('guid', entry.link)
         if item_id not in processed:
@@ -137,16 +138,26 @@ def main():
         print("No new items.")
         sys.exit(0)
     
-    # ✅ 直接取第一条（最新的）
-    latest = new_items[0]
-    print(f"[INFO] Processing latest: {latest['title']}")
+    print(f"[INFO] Found {len(new_items)} new items to process.")
     
-    if send_feishu_webhook(latest['title'], latest['link'], latest['published']):
-        processed.add(latest['id'])
-        save_processed(processed)
-        sys.exit(0)
-    else:
-        sys.exit(1)
+    # ✅ 遍历发送所有新条目的Webhook
+    success_count = 0
+    for item in new_items:
+        print(f"[INFO] Processing: {item['title']}")
+        if send_feishu_webhook(item['title'], item['link'], item['published']):
+            processed.add(item['id'])
+            success_count += 1
+        else:
+            print(f"[WARNING] Failed to send: {item['title']}, will retry next time")
+    
+    # 保存所有成功处理的ID
+    save_processed(processed)
+    
+    # 输出处理报告
+    print(f"[{datetime.now()}] ✅ Processed {success_count}/{len(new_items)} items successfully.")
+    
+    # 如果全部成功则退出0，否则退出1
+    sys.exit(0 if success_count == len(new_items) else 1)
 
 if __name__ == "__main__":
     main()
