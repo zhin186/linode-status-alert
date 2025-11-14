@@ -18,7 +18,7 @@ CACHE_FILE = "/app/cache/processed.json"
 
 def build_feishu_message(title, link, published):
     """构建飞书消息"""
-    text = f"🚨 **Linode 状态更新**\n" \
+    text = f"🚨 **Linode Status 告警**\n" \
            f"📌 **标题**: {title}\n" \
            f"🔗 **链接**: {link}\n" \
            f"⏰ **发布时间**: {published}"
